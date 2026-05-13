@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deploying with Vercel — A Beginner's Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f4f0;
+    --cream: #faf9f5;
+    --ink: #1a1a1a;
+    --accent: #00c2a8;
+    --accent2: #ff6b35;
+    --accent3: #7b5ea7;
+    --yellow: #ffe566;
+    --card-bg: #ffffff;
+    --border: #e2e0d8;
+    --code-bg: #0f1117;
+    --code-text: #a6f1e0;
+    --muted: #6b6b6b;
+    --step-bg: #f0faf8;
+    --tip-bg: #fff8e6;
+    --warn-bg: #fff0ec;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--black);
+    color: var(--white);
+    padding: 72px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,194,168,.25) 0%, transparent 70%);
+    top: -120px; right: -100px;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,94,167,.2) 0%, transparent 70%);
+    bottom: -80px; left: 60px;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--black);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1.05rem;
+    color: rgba(245,244,240,.75);
+    max-width: 560px;
+    margin-bottom: 32px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .hero-meta span {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(245,244,240,.55);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hero-meta span::before { content: '▸'; color: var(--accent); }
+
+  /* ── NAV ── */
+  .toc-bar {
+    background: var(--black);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 0 40px;
+    overflow-x: auto;
+  }
+  .toc-bar ul {
+    display: flex;
+    list-style: none;
+    max-width: 860px;
+    margin: 0 auto;
+    gap: 2px;
+  }
+  .toc-bar a {
+    display: block;
+    color: rgba(245,244,240,.5);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 14px 12px;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  .toc-bar a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 0 40px 80px; }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-top: 64px;
+    padding-top: 64px;
+    border-top: 1px solid var(--border);
+  }
+  .section:first-of-type { border-top: none; margin-top: 48px; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 32px 0 10px;
+    color: var(--ink);
+  }
+
+  p { margin-bottom: 14px; color: #333; }
+
+  /* ── ANALOGY BOX ── */
+  .analogy {
+    background: var(--yellow);
+    border-left: 4px solid #d4a800;
+    border-radius: 0 8px 8px 0;
+    padding: 18px 20px;
+    margin: 24px 0;
+    font-size: .95rem;
+  }
+  .analogy strong { display: block; font-family: 'Syne', sans-serif; font-size: .9rem; margin-bottom: 4px; }
+
+  /* ── TIP BOX ── */
+  .tip {
+    background: var(--tip-bg);
+    border: 1px solid #f5d87a;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: .92rem;
+  }
+  .tip::before { content: '💡 Tip: '; font-weight: 600; }
+
+  /* ── WARNING BOX ── */
+  .warn {
+    background: var(--warn-bg);
+    border: 1px solid #ffc5ae;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: .92rem;
+  }
+  .warn::before { content: '⚠️ Important: '; font-weight: 600; }
+
+  /* ── INFO BOX ── */
+  .info {
+    background: var(--step-bg);
+    border: 1px solid #a0e0d6;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: .92rem;
+  }
+  .info::before { content: 'ℹ️  Note: '; font-weight: 600; }
+
+  /* ── CODE ── */
+  pre {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    margin: 20px 0;
+    position: relative;
+  }
+  pre code {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--code-text);
+    line-height: 1.8;
+  }
+  .code-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,.3);
+    position: absolute;
+    top: 10px; right: 14px;
+  }
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: .88em;
+    background: #e8f5f3;
+    color: #006a5c;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre code { background: none; color: var(--code-text); padding: 0; font-size: 13px; }
+
+  /* ── STEP CARDS ── */
+  .steps { display: flex; flex-direction: column; gap: 16px; margin: 28px 0; }
+  .step-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    align-items: start;
+    transition: box-shadow .2s;
+  }
+  .step-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+  .step-num {
+    width: 44px; height: 44px;
+    background: var(--black);
+    color: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .step-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  .step-content p { margin-bottom: 0; font-size: .93rem; color: #444; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: .93rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .compare-table th {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: .9rem;
+  }
+  .compare-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:nth-child(even) td { background: #f9f8f4; }
+
+  /* ── PROJECT GRID ── */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .project-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .project-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.09); }
+  .project-icon { font-size: 2rem; margin-bottom: 10px; }
+  .project-card h4 { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 6px; font-size: .95rem; }
+  .project-card p { font-size: .85rem; color: var(--muted); margin: 0; }
+  .project-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-top: 10px;
+    background: #e8f5f3;
+    color: #006a5c;
+  }
+
+  /* ── SUPPORTED TYPES ── */
+  .type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .88rem;
+    margin: 4px;
+  }
+  .type-pill span { font-size: 1.1rem; }
+
+  /* ── DASHBOARD SECTION ── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 24px 0;
+  }
+  @media (max-width: 600px) { .dashboard-grid { grid-template-columns: 1fr; } }
+  .dash-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .dash-card h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: .9rem;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dash-card p { font-size: .85rem; color: var(--muted); margin: 0; }
+
+  /* ── EXERCISE ── */
+  .exercise-box {
+    background: var(--black);
+    color: var(--white);
+    border-radius: 14px;
+    padding: 36px 40px;
+    margin: 28px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .exercise-box::before {
+    content: '✦';
+    position: absolute;
+    font-size: 120px;
+    opacity: .04;
+    top: -20px; right: 20px;
+  }
+  .exercise-box h3 {
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .exercise-box h2 {
+    color: var(--white);
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+  }
+  .exercise-box p { color: rgba(245,244,240,.75); }
+  .exercise-box ol {
+    padding-left: 20px;
+    margin: 12px 0;
+    color: rgba(245,244,240,.8);
+  }
+  .exercise-box ol li { margin-bottom: 8px; font-size: .95rem; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; margin: 16px 0; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: .93rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .checklist li::before {
+    content: '☐';
+    font-size: 1.1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, var(--accent), transparent);
+    margin: 40px 0;
+    opacity: .3;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    color: rgba(245,244,240,.4);
+    text-align: center;
+    padding: 32px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    margin-top: 80px;
+  }
+  footer strong { color: var(--accent); }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .5s, transform .5s; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 48px 20px 40px; }
+    .page { padding: 0 20px 60px; }
+    .toc-bar { padding: 0 12px; }
+    .exercise-box { padding: 24px; }
+    .compare-table { font-size: .82rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="badge">Beginner Course · Junior Developers</div>
+    <h1>Deploying with <span>Vercel</span><br/>From Zero to Live Site</h1>
+    <p>A clear, step-by-step guide to publishing your projects on the internet — written in simple English with real examples.</p>
+    <div class="hero-meta">
+      <span>7 Sections</span>
+      <span>Step-by-step instructions</span>
+      <span>Practical exercises</span>
+      <span>No experience needed</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════ TOC NAV ══════════════ -->
+<nav class="toc-bar">
+  <ul>
+    <li><a href="#s1">1. What is Deployment</a></li>
+    <li><a href="#s2">2. Prepare a Project</a></li>
+    <li><a href="#s3">3. Example Projects</a></li>
+    <li><a href="#s4">4. Vercel Supports</a></li>
+    <li><a href="#s5">5. Deploy Step by Step</a></li>
+    <li><a href="#s6">6. Dashboard Guide</a></li>
+    <li><a href="#s7">7. Practical Exercise</a></li>
+  </ul>
+</nav>
+
+<main class="page">
+
+<!-- ══════════════ SECTION 1 ══════════════ -->
+<article class="section reveal" id="s1">
+  <div class="section-label">Section 01</div>
+  <h2>What is Deployment?<br/>And How is it Different from Hosting?</h2>
+
+  <p>When you build a website or web app on your computer, <strong>only you can see it</strong>. Nobody else in the world can visit it. To share it with others, you need two things: <strong>deployment</strong> and <strong>hosting</strong>. Many beginners confuse these two — let's clear that up!</p>
+
+  <div class="analogy">
+    <strong>🏠 Real-life analogy</strong>
+    Think of your project like a restaurant. You cook the food at home (building the project). <strong>Hosting</strong> is like renting a physical building where your restaurant will live. <strong>Deployment</strong> is the act of moving everything — tables, chairs, menus, and food — into that building and opening the doors to customers.
+  </div>
+
+  <h3>🔵 What is Hosting?</h3>
+  <p>Hosting is simply a <strong>place on the internet where your website files are stored</strong>. Think of it as renting a room on a big server computer somewhere in the world. That computer is always on, 24 hours a day, 7 days a week. So whenever someone types your website address, their browser goes to that computer and gets your files.</p>
+  <p>Examples of hosting providers: <code>Vercel</code>, <code>Netlify</code>, <code>GitHub Pages</code>, <code>Render</code>.</p>
+
+  <h3>🔴 What is Deployment?</h3>
+  <p>Deployment is the <strong>process of uploading your code from your computer to a hosting server</strong>. When you deploy, your project goes from "sitting on your laptop" to "running live on the internet."</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Concept</th><th>Simple meaning</th><th>Real-life example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Hosting</strong></td>
+        <td>The place where your website lives online</td>
+        <td>Renting an apartment</td>
+      </tr>
+      <tr>
+        <td><strong>Deployment</strong></td>
+        <td>The action of putting your website there</td>
+        <td>Moving your furniture into the apartment</td>
+      </tr>
+      <tr>
+        <td><strong>Build</strong></td>
+        <td>Preparing your code to run on a server</td>
+        <td>Packing your boxes before moving</td>
+      </tr>
+      <tr>
+        <td><strong>Live site</strong></td>
+        <td>Your website that everyone can visit</td>
+        <td>The apartment after you moved in</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="tip">With Vercel, <strong>hosting and deployment happen together</strong> — you just push your code, and Vercel handles everything else automatically!</div>
+
+  <h3>Why Do We Need Deployment?</h3>
+  <p>You need deployment when you want to:</p>
+  <ul style="padding-left:20px; margin:10px 0;">
+    <li style="padding:4px 0;">Share your project with friends, teachers, or clients</li>
+    <li style="padding:4px 0;">Put your project in your portfolio / CV</li>
+    <li style="padding:4px 0;">Let users around the world access your web app</li>
+    <li style="padding:4px 0;">Test how your project works on a real server</li>
+  </ul>
+</article>
+
+<!-- ══════════════ SECTION 2 ══════════════ -->
+<article class="section reveal" id="s2">
+  <div class="section-label">Section 02</div>
+  <h2>How to Prepare a Project for Deployment</h2>
+
+  <p>Before you deploy, you need to make sure your project is <strong>clean and ready</strong>. Think of it like cleaning your house before guests arrive. Here's what that means:</p>
+
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Make sure it runs correctly on your computer</h4>
+        <p>Open your project in the browser locally. If there are errors in the console (press F12 to see), fix them first. A broken project locally = a broken project online.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Put your project in a GitHub repository</h4>
+        <p>Vercel connects directly to GitHub. If you don't have a GitHub account yet, create one at <code>github.com</code>. Then upload your project there. GitHub is like Google Drive but specifically for code.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Check your file structure</h4>
+        <p>Make sure you have an entry point file. For HTML projects: <code>index.html</code>. For React: <code>package.json</code> with a start script. Vercel needs to know where your project begins.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Remove sensitive information</h4>
+        <p>Never put passwords, API keys, or database credentials directly in your code. Use environment variables instead (explained in Section 6). Adding a <code>.gitignore</code> file helps prevent accidental uploads.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Test on a different browser</h4>
+        <p>Open your project in Chrome AND Firefox. Sometimes things look different across browsers. Fix any differences before deploying.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>The Basic File Structure Vercel Expects</h3>
+
+  <p>For a simple HTML website, your folder should look like this:</p>
+  <pre><code>my-project/
+├── index.html        ← main page (REQUIRED)
+├── style.css         ← your styles
+├── script.js         ← your JavaScript
+└── images/           ← your images folder
+    └── logo.png</code><span class="code-label">FOLDER STRUCTURE</span></pre>
+
+  <p>For a React project (created with Vite or Create React App):</p>
+  <pre><code>my-react-app/
+├── package.json       ← project info &amp; scripts (REQUIRED)
+├── src/
+│   ├── main.jsx       ← entry point
+│   └── App.jsx
+├── public/
+│   └── index.html
+└── .gitignore         ← files to ignore</code><span class="code-label">REACT STRUCTURE</span></pre>
+
+  <div class="warn">Never delete <code>package.json</code> from a React project. Vercel reads it to understand how to build your project. Without it, deployment will fail.</div>
+
+  <h3>Creating a .gitignore File (Important!)</h3>
+  <p>A <code>.gitignore</code> file tells Git (and therefore GitHub) which files NOT to upload. For a React/Node project, create a file named <code>.gitignore</code> in your root folder with this content:</p>
+  <pre><code>node_modules/
+.env
+.DS_Store
+dist/
+build/</code><span class="code-label">.gitignore</span></pre>
+  <div class="tip">The <code>node_modules</code> folder can have thousands of files. You never need to upload it — Vercel will download them automatically.</div>
+</article>
+
+<!-- ══════════════ SECTION 3 ══════════════ -->
+<article class="section reveal" id="s3">
+  <div class="section-label">Section 03</div>
+  <h2>Simple Deployable Projects for Beginners</h2>
+
+  <p>You don't need a complex project to start. Here are great beginner projects that deploy beautifully on Vercel:</p>
+
+  <div class="project-grid">
+    <div class="project-card">
+      <div class="project-icon">📄</div>
+      <h4>Personal Portfolio</h4>
+      <p>A page with your name, skills, and projects. Great for your CV!</p>
+      <div class="project-tag">HTML + CSS</div>
+    </div>
+    <div class="project-card">
+      <div class="project-icon">🧮</div>
+      <h4>Calculator App</h4>
+      <p>A working calculator with buttons. Simple but shows logic skills.</p>
+      <div class="project-tag">HTML + JS</div>
+    </div>
+    <div class="project-card">
+      <div class="project-icon">🌤️</div>
+      <h4>Weather App</h4>
+      <p>Fetches weather from an API and displays it on a nice card.</p>
+      <div class="project-tag">React or JS</div>
+    </div>
+    <div class="project-card">
+      <div class="project-icon">📝</div>
+      <h4>To-Do List</h4>
+      <p>Add, complete, and delete tasks. A classic project everyone builds.</p>
+      <div class="project-tag">React or JS</div>
+    </div>
+    <div class="project-card">
+      <div class="project-icon">🎨</div>
+      <h4>Color Picker Tool</h4>
+      <p>Pick a color and see its HEX or RGB code. Fun and useful!</p>
+      <div class="project-tag">HTML + JS</div>
+    </div>
+    <div class="project-card">
+      <div class="project-icon">📰</div>
+      <h4>News Reader</h4>
+      <p>Fetch news from a free API and display headlines on cards.</p>
+      <div class="project-tag">React</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>👶 Start small, think big</strong>
+    Even a simple one-page HTML site with your name and a photo is a REAL deployed project. Once it's on Vercel, you have a real public URL — that's huge! Don't wait until you have a "perfect" project. Deploy what you have NOW.
+  </div>
+
+  <h3>Example: Minimal HTML Portfolio (ready to deploy)</h3>
+  <p>Here's a complete, working HTML file you can deploy on Vercel right now. Save it as <code>index.html</code>:</p>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;My Portfolio&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+    h1 { color: #00c2a8; }
+    .project {
+      background: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;👋 Hi, I'm [Your Name]&lt;/h1&gt;
+  &lt;p&gt;I'm a Computer Engineering student at the University of Rwanda.&lt;/p&gt;
+
+  &lt;h2&gt;My Projects&lt;/h2&gt;
+
+  &lt;div class="project"&gt;
+    &lt;h3&gt;🧮 Calculator&lt;/h3&gt;
+    &lt;p&gt;A simple calculator built with HTML, CSS and JavaScript.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;div class="project"&gt;
+    &lt;h3&gt;📝 To-Do App&lt;/h3&gt;
+    &lt;p&gt;Add and remove tasks from a list. Built with React.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;h2&gt;Contact&lt;/h2&gt;
+  &lt;p&gt;Email: youremail@example.com&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code><span class="code-label">index.html</span></pre>
+</article>
+
+<!-- ══════════════ SECTION 4 ══════════════ -->
+<article class="section reveal" id="s4">
+  <div class="section-label">Section 04</div>
+  <h2>Types of Projects Supported by Vercel</h2>
+
+  <p>Vercel is very powerful — it supports many types of web projects. As a beginner, you'll mostly use the first two. But it's good to know what else exists!</p>
+
+  <h3>✅ Vercel Supports These Project Types:</h3>
+
+  <div style="margin:20px 0;">
+    <div class="type-pill"><span>📄</span> Plain HTML / CSS / JS websites</div>
+    <div class="type-pill"><span>⚛️</span> React (Create React App)</div>
+    <div class="type-pill"><span>⚡</span> React + Vite</div>
+    <div class="type-pill"><span>🔷</span> Next.js (React framework)</div>
+    <div class="type-pill"><span>🟢</span> Vue.js</div>
+    <div class="type-pill"><span>🔥</span> Svelte / SvelteKit</div>
+    <div class="type-pill"><span>🅰️</span> Angular</div>
+    <div class="type-pill"><span>⚙️</span> Node.js APIs (serverless)</div>
+    <div class="type-pill"><span>🐍</span> Python (Flask, FastAPI)</div>
+    <div class="type-pill"><span>💎</span> Ruby</div>
+    <div class="type-pill"><span>🐘</span> PHP</div>
+  </div>
+
+  <div class="tip">As a Year 3 student, focus on deploying <strong>HTML/CSS/JS</strong> and <strong>React (Vite)</strong> projects first. These are the most common and easiest to deploy.</div>
+
+  <h3>What Vercel Does NOT Support Directly</h3>
+  <p>Vercel is built for <strong>frontend and serverless</strong> projects. It does NOT work well for:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr><th>Not Supported</th><th>Why</th><th>Alternative</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Full Django / Spring Boot servers</td>
+        <td>These need a persistent server running all the time</td>
+        <td>Use Render.com or Railway</td>
+      </tr>
+      <tr>
+        <td>Traditional MySQL databases</td>
+        <td>Vercel doesn't host databases</td>
+        <td>Use PlanetScale, Supabase, or MongoDB Atlas</td>
+      </tr>
+      <tr>
+        <td>Desktop apps (Java Swing, etc.)</td>
+        <td>Vercel is web-only</td>
+        <td>GitHub Releases for downloads</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <strong>🍽️ Analogy</strong>
+    Vercel is like a food truck — fast, efficient, and perfect for serving web pages quickly. But if you need a full kitchen with refrigerators and storage (databases, persistent servers), you need a full restaurant (different service).
+  </div>
+</article>
+
+<!-- ══════════════ SECTION 5 ══════════════ -->
+<article class="section reveal" id="s5">
+  <div class="section-label">Section 05</div>
+  <h2>Step-by-Step Deployment Guide</h2>
+  <p>From Zero to Live Site — follow each step carefully. We'll deploy a project using GitHub + Vercel.</p>
+
+  <h3>🔧 Before You Start — What You Need</h3>
+  <ul style="padding-left:20px; margin:12px 0;">
+    <li style="padding:4px 0;">✅ A GitHub account (<a href="https://github.com" target="_blank">github.com</a>)</li>
+    <li style="padding:4px 0;">✅ A Vercel account (<a href="https://vercel.com" target="_blank">vercel.com</a>) — you can sign up with GitHub</li>
+    <li style="padding:4px 0;">✅ Git installed on your computer (<a href="https://git-scm.com" target="_blank">git-scm.com</a>)</li>
+    <li style="padding:4px 0;">✅ A project folder on your computer</li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <h3>📦 Phase 1 — Put Your Project on GitHub</h3>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Create a new repository on GitHub</h4>
+        <p>Go to <code>github.com</code> → Click the green <strong>"New"</strong> button → Give your repo a name (e.g., <code>my-portfolio</code>) → Keep it Public → Click <strong>"Create repository"</strong>.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Open your terminal and go to your project folder</h4>
+        <p>Open your terminal (or VS Code terminal). Navigate to your project:</p>
+      </div>
+    </div>
+  </div>
+
+  <pre><code># Example: if your project is on the Desktop
+cd Desktop/my-portfolio
+
+# Check you're in the right place (you should see your files)
+ls</code><span class="code-label">TERMINAL</span></pre>
+
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Initialize Git and connect to GitHub</h4>
+        <p>Run these commands one by one (replace the URL with YOUR repository URL from GitHub):</p>
+      </div>
+    </div>
+  </div>
+
+  <pre><code>git init                          # Start tracking this folder with Git
+git add .                         # Stage ALL your files
+git commit -m "First commit"      # Save a snapshot of your files
+
+# Connect to your GitHub repository (get this URL from GitHub)
+git remote add origin https://github.com/YOUR-USERNAME/my-portfolio.git
+
+git branch -M main                # Rename branch to "main"
+git push -u origin main           # Upload to GitHub!</code><span class="code-label">TERMINAL — Git Commands</span></pre>
+
+  <div class="tip">After running these commands, refresh your GitHub repository page. You should see your files there!</div>
+
+  <div class="divider"></div>
+
+  <h3>🚀 Phase 2 — Deploy on Vercel</h3>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Sign in to Vercel</h4>
+        <p>Go to <code>vercel.com</code> → Click <strong>"Sign Up"</strong> → Choose <strong>"Continue with GitHub"</strong>. This links your GitHub account to Vercel automatically.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Create a new project</h4>
+        <p>On the Vercel dashboard → Click the <strong>"Add New…"</strong> button → Select <strong>"Project"</strong>.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>Import your GitHub repository</h4>
+        <p>Vercel will show a list of your GitHub repositories. Find <code>my-portfolio</code> and click the <strong>"Import"</strong> button next to it.</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h4>Configure the project (usually nothing to change!)</h4>
+        <p>Vercel is smart. It will automatically detect if you have a React, Vite, or HTML project and set the right build settings. For plain HTML projects, no changes are needed. Click <strong>"Deploy"</strong>!</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <h4>Wait for deployment (30–60 seconds)</h4>
+        <p>You'll see a progress screen with logs. Vercel installs dependencies, builds the project, and publishes it. When you see the confetti/success screen — YOU'RE LIVE! 🎉</p>
+      </div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">9</div>
+      <div class="step-content">
+        <h4>Copy your live URL!</h4>
+        <p>Vercel gives you a URL like <code>my-portfolio.vercel.app</code>. Share it with anyone! Open it on your phone, send it to your lecturer, add it to your CV.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>🔄 How to Update Your Live Site</h3>
+  <p>One of the BEST things about Vercel is <strong>automatic redeployment</strong>. Every time you push code to GitHub, Vercel automatically updates your live site. You never need to manually deploy again!</p>
+  <pre><code># Make changes to your files, then:
+git add .
+git commit -m "Updated my homepage"
+git push                          # Vercel sees this and auto-redeploys!</code><span class="code-label">TERMINAL — Update Workflow</span></pre>
+
+  <div class="analogy">
+    <strong>🔁 Analogy</strong>
+    It's like having an assistant who watches your desk (GitHub). Every time you update a document (push code), they immediately update the notice board on the wall (your live site) automatically — you don't have to do anything extra.
+  </div>
+</article>
+
+<!-- ══════════════ SECTION 6 ══════════════ -->
+<article class="section reveal" id="s6">
+  <div class="section-label">Section 06</div>
+  <h2>Understanding the Vercel Dashboard</h2>
+
+  <p>After you deploy, you'll spend time on the Vercel dashboard. Let's walk through what everything means so you're not confused.</p>
+
+  <div class="dashboard-grid">
+    <div class="dash-card">
+      <h4>🏠 Overview (Home)</h4>
+      <p>Shows all your deployed projects. Each project has a preview image, the live URL, and the last time it was updated.</p>
+    </div>
+    <div class="dash-card">
+      <h4>🚀 Deployments Tab</h4>
+      <p>Every time you push to GitHub, a new deployment is listed here. You can see if it succeeded (✅) or failed (❌), and view the build logs.</p>
+    </div>
+    <div class="dash-card">
+      <h4>📊 Analytics Tab</h4>
+      <p>Shows how many people visited your site, which pages they went to, and where they came from. (Basic analytics on the free plan.)</p>
+    </div>
+    <div class="dash-card">
+      <h4>⚙️ Settings Tab</h4>
+      <p>Where you configure your project: change the name, set environment variables, manage domains, and control build settings.</p>
+    </div>
+    <div class="dash-card">
+      <h4>🌐 Domains Section</h4>
+      <p>By default you get a <code>yourproject.vercel.app</code> URL. Here you can connect a custom domain like <code>yourname.com</code> if you own one.</p>
+    </div>
+    <div class="dash-card">
+      <h4>📋 Build Logs</h4>
+      <p>When a deployment fails, click "View Deployment" → "Build Logs". This shows the exact error so you can fix it. Always read the last few lines — that's where the error usually is.</p>
+    </div>
+  </div>
+
+  <h3>🔐 Environment Variables — Keeping Secrets Safe</h3>
+  <p>Sometimes your project needs a secret key (like an API key for weather or maps). You should <strong>never</strong> put this directly in your code. Instead, use environment variables.</p>
+
+  <p>Think of an environment variable like a secret note that Vercel reads but nobody else can see in your code.</p>
+
+  <pre><code># ❌ WRONG — Don't do this in your code!
+const apiKey = "abc123secretkey456";
+
+# ✅ CORRECT — Use an environment variable
+const apiKey = process.env.MY_API_KEY;</code><span class="code-label">JavaScript</span></pre>
+
+  <p>To add an environment variable on Vercel:</p>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">→</div>
+      <div class="step-content">
+        <h4>Go to your project → Settings → Environment Variables</h4>
+        <p>Type the <strong>Name</strong> (e.g., <code>MY_API_KEY</code>) and the <strong>Value</strong> (e.g., <code>abc123secret</code>). Choose which environments it applies to (Production, Preview, Development). Click <strong>Save</strong>. Then redeploy.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>📌 Understanding Deployment Status</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Status</th><th>What it means</th><th>What to do</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>✅ Ready</td><td>Deployed successfully — your site is live!</td><td>Share your URL!</td></tr>
+      <tr><td>🔄 Building</td><td>Vercel is currently deploying your project</td><td>Wait 30–60 seconds</td></tr>
+      <tr><td>❌ Error</td><td>Something went wrong during deployment</td><td>Click it → Read Build Logs</td></tr>
+      <tr><td>⏸️ Canceled</td><td>You or a new push canceled this deployment</td><td>Usually fine — newer one will deploy</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">The Free plan (Hobby) on Vercel is completely free and has no time limit. It's perfect for student projects. You get unlimited personal projects, 100GB bandwidth per month, and automatic HTTPS.</div>
+</article>
+
+<!-- ══════════════ SECTION 7 ══════════════ -->
+<article class="section reveal" id="s7">
+  <div class="section-label">Section 07</div>
+  <h2>Practical Exercise</h2>
+  <p>It's time to deploy your own project! Follow these tasks step by step. By the end, you will have a real, live website with a public URL.</p>
+
+  <div class="exercise-box">
+    <h3>🎯 Exercise Goal</h3>
+    <h2>Deploy Your First Live Website</h2>
+    <p>By completing this exercise, you will have a project deployed on Vercel with a public <code>.vercel.app</code> URL that anyone in the world can visit.</p>
+  </div>
+
+  <h3>📋 Task 1 — Create the Project (30 minutes)</h3>
+  <p>Create a simple HTML portfolio page. Use the template from Section 3 OR build your own with these requirements:</p>
+  <ul class="checklist">
+    <li>Has an <code>index.html</code> file as the main page</li>
+    <li>Shows your name and a short description of yourself</li>
+    <li>Lists at least 2 projects you've worked on (even if small)</li>
+    <li>Has some CSS styling (colors, fonts, spacing)</li>
+    <li>Has at least one link (GitHub, email, or project link)</li>
+    <li>Opens without errors in your browser</li>
+  </ul>
+
+  <h3>📋 Task 2 — Push to GitHub (20 minutes)</h3>
+  <p>Follow the Git commands from Section 5. When done, verify these things:</p>
+  <ul class="checklist">
+    <li>Created a GitHub account if you didn't have one</li>
+    <li>Created a new public repository called <code>my-portfolio</code></li>
+    <li>Ran <code>git init</code>, <code>git add .</code>, <code>git commit</code></li>
+    <li>Ran <code>git push</code> successfully</li>
+    <li>Can see your files on GitHub in the browser</li>
+  </ul>
+
+  <h3>📋 Task 3 — Deploy on Vercel (10 minutes)</h3>
+  <ul class="checklist">
+    <li>Created a Vercel account using GitHub login</li>
+    <li>Imported the <code>my-portfolio</code> repository</li>
+    <li>Clicked Deploy and waited for it to finish</li>
+    <li>Got a successful "Congratulations" screen</li>
+    <li>Opened the live <code>.vercel.app</code> URL</li>
+    <li>Verified the website looks correct in the browser</li>
+  </ul>
+
+  <h3>📋 Task 4 — Make an Update (10 minutes)</h3>
+  <p>This tests the automatic redeployment feature:</p>
+  <ul class="checklist">
+    <li>Changed something in your <code>index.html</code> (e.g., changed a color or added text)</li>
+    <li>Ran <code>git add . && git commit -m "Updated site" && git push</code></li>
+    <li>Watched the Vercel dashboard show a new deployment</li>
+    <li>Refreshed your live URL and saw the change applied</li>
+  </ul>
+
+  <div class="exercise-box" style="margin-top:28px;">
+    <h3>🏆 Submission</h3>
+    <h2>Share Your Live URL</h2>
+    <p>When you finish, share your <code>yourname.vercel.app</code> URL with your lecturer or classmates. Add it to your GitHub profile and your CV!</p>
+    <br/>
+    <p style="color:rgba(245,244,240,.6); font-size:.88rem;">Bonus: Try deploying a React project using Vite (<code>npm create vite@latest</code>) and repeating the same process. The steps are exactly the same — Vercel detects React automatically!</p>
+  </div>
+
+  <h3>🐛 Common Problems and Fixes</h3>
+  <table class="compare-table">
+    <thead>
+      <tr><th>Problem</th><th>What's Wrong</th><th>Solution</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Page shows "404 Not Found"</td>
+        <td>Your main file is not named <code>index.html</code></td>
+        <td>Rename your main file to <code>index.html</code></td>
+      </tr>
+      <tr>
+        <td>Build failed — "module not found"</td>
+        <td>You forgot to push <code>package.json</code></td>
+        <td>Run <code>git add . && git push</code> again</td>
+      </tr>
+      <tr>
+        <td>Images not loading</td>
+        <td>Image file paths are wrong (case-sensitive on servers)</td>
+        <td>Make sure paths match exactly: <code>images/Photo.png</code> ≠ <code>images/photo.png</code></td>
+      </tr>
+      <tr>
+        <td>CSS not applying</td>
+        <td>CSS file path wrong in <code>&lt;link&gt;</code> tag</td>
+        <td>Check: <code>&lt;link rel="stylesheet" href="style.css"&gt;</code> matches your file name</td>
+      </tr>
+      <tr>
+        <td>Deployment stuck "building"</td>
+        <td>Rarely: Vercel issue</td>
+        <td>Wait 5 min. If still stuck, go to deployments → cancel → redeploy</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+
+</main>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <strong>Vercel Deployment Course</strong> &nbsp;·&nbsp; Beginner-Friendly &nbsp;·&nbsp; University of Rwanda &nbsp;·&nbsp;
+  Made for Junior Developers &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.07 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Smooth scroll for TOC
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
